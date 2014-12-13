@@ -1,0 +1,146 @@
+﻿<Page
+    x:Class="PersonPicker.MainPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:PersonPicker"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d">
+
+    <Page.Transitions>
+        <TransitionCollection>
+            <NavigationThemeTransition>
+                <NavigationThemeTransition.DefaultNavigationTransitionInfo>
+                    <CommonNavigationTransitionInfo IsStaggeringEnabled="True"/>
+                </NavigationThemeTransition.DefaultNavigationTransitionInfo>
+            </NavigationThemeTransition>
+        </TransitionCollection>
+    </Page.Transitions>
+    
+    <Page.Background>
+        <ImageBrush ImageSource="images/binary-vortex.jpg" Stretch="Uniform" Opacity="0.25"></ImageBrush>
+    </Page.Background>
+
+    <Grid Margin="10">
+        <Grid.ChildrenTransitions>
+            <TransitionCollection>
+                <EntranceThemeTransition/>
+            </TransitionCollection>
+        </Grid.ChildrenTransitions>
+
+        <Grid.Resources>
+            <Storyboard x:Name="animQuestionMarkRotation">
+                <DoubleAnimation
+                    Storyboard.TargetProperty="(UIElement.RenderTransform).(CompositeTransform.Rotation)"
+                    Storyboard.TargetName="imgQuestion"
+                    From="0" To="720" Duration="0:0:0.8" />
+                <DoubleAnimation
+                    Storyboard.TargetProperty="(Image.Opacity)"
+                    Storyboard.TargetName="imgQuestion"
+                    From="1" To="0" Duration="0:0:0.75" />
+            </Storyboard>
+
+            <Storyboard x:Name="animQuestionMark">
+                <DoubleAnimation
+                    x:Name="animQuestionMarkOpacity"
+                    Storyboard.TargetProperty="(Image.Opacity)"
+                    Storyboard.TargetName="imgQuestion" />
+            </Storyboard>
+
+            <Storyboard x:Name="animPicked">
+                <DoubleAnimation
+                    x:Name="animPickedOpacity"
+                    Storyboard.TargetProperty="(Grid.Opacity)"
+                    Storyboard.TargetName="pickedContainer" />
+            </Storyboard>
+        </Grid.Resources>
+
+        <Pivot x:Uid="Pivot" x:Name="pivot" CommonNavigationTransitionInfo.IsStaggerElement="True" SelectionChanged="pivot_SelectionChanged">
+            <PivotItem Header="picker" CommonNavigationTransitionInfo.IsStaggerElement="True">
+
+                <Grid>
+                    <Grid Height="210" VerticalAlignment="Top">
+                        <Image Name="imgQuestion" Source="/images/question-mark.png" Margin="10" RenderTransformOrigin="0.5,0.5" >
+                            <Image.RenderTransform>
+                                <CompositeTransform Rotation="0"/>
+                            </Image.RenderTransform>
+                        </Image>
+                        
+                        <Grid Name="pickedContainer" Opacity="0">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="13*" />
+                                <RowDefinition Height="9*" />
+                            </Grid.RowDefinitions>
+                            <Image Grid.Row="0" Name="imgPickedPerson" Margin="10" />
+                            <TextBlock Grid.Row="1" Name="tbPickedPerson" FontSize="26" TextAlignment="Center" TextWrapping="WrapWholeWords"/>
+                        </Grid>
+                    </Grid>
+
+                    <TextBlock Text="last picks" Margin="0,220,0,0" TextAlignment="Center" FontSize="23" FontStyle="Italic"></TextBlock>
+
+                    <Grid Height="Auto" Margin="0,254,0,0">
+                        <ListView Name="listLastPicked" HorizontalContentAlignment="Center">
+                            <ListView.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid>
+                                        <TextBlock Text="{Binding PickedLabel}" FontSize="19" HorizontalAlignment="Center"/>
+                                    </Grid>
+                                </DataTemplate>
+                            </ListView.ItemTemplate>
+                        </ListView>
+                    </Grid>
+                </Grid>
+            </PivotItem>
+
+            <PivotItem x:Uid="PivotItem1" Header="people" CommonNavigationTransitionInfo.IsStaggerElement="True">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <StackPanel Grid.Row="0" Margin="19,0,0,0">
+                        <TextBlock Text="Saved people" Style="{ThemeResource SubheaderTextBlockStyle}" CharacterSpacing="{ThemeResource PivotHeaderItemCharacterSpacing}"/>
+                    </StackPanel>
+
+                    <Grid Grid.Row="1" Margin="0,20,0,0" >
+                        <ListView Name="listPeople">
+                            <ListView.ItemTemplate>
+                                <DataTemplate>
+                                    <StackPanel Margin="0,10,0,10" Holding="listPeopleItem_Holding">
+                                        <FlyoutBase.AttachedFlyout>
+                                            <MenuFlyout>
+                                                <MenuFlyoutItem Text="delete" Click="menuFlyoutListPeopleItem_Click"/>
+                                            </MenuFlyout>
+                                        </FlyoutBase.AttachedFlyout>
+
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="60" />
+                                                <ColumnDefinition Width="16" />
+                                                <ColumnDefinition Width="Auto" />
+                                            </Grid.ColumnDefinitions>
+
+                                            <Image Grid.Column="0" Source="{Binding Thumbnail}" Margin="0" />
+                                            <TextBlock VerticalAlignment="Center" Grid.Column="2" Text="{Binding Label}" Style="{ThemeResource ListViewItemTextBlockStyle}" CharacterSpacing="{ThemeResource HubSectionHeaderCharacterSpacing}" />
+                                        </Grid>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ListView.ItemTemplate>
+                        </ListView>
+                    </Grid>
+                </Grid>
+            </PivotItem>
+        </Pivot>
+    </Grid>
+
+    <Page.BottomAppBar>
+        <CommandBar>
+            <AppBarButton x:Name="btnPick" Label="Pick!" Icon="Emoji" Click="btnPick_Click" />
+            <AppBarButton x:Name="btnAddPerson" Label="Add" Icon="Add" Click="btnAddPerson_Click" Visibility="Collapsed" />
+            <CommandBar.SecondaryCommands>
+                <AppBarButton x:Name="btnDelPicks" Label="delete last picks" Click="btnDelPicks_Click" />
+            </CommandBar.SecondaryCommands>
+        </CommandBar>
+    </Page.BottomAppBar>
+</Page>
